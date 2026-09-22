@@ -22,6 +22,11 @@ export const bodyFileName = (k) => `body-${k}.md`;
 export const LANG_SEPARATOR_RE = /^>>>>> lang=.*$/gm;
 export const langSeparator = (lang) => `>>>>> lang=${lang}`;
 export const RELEASE_FILE = 'release.js';
+// These names are inputs owned by the content validator. Generated outputs
+// must never be allowed to replace any of them.
+export const CONTENT_SERVICE_FILE_NAMES = Object.freeze([
+  'manifest.js', RELEASE_FILE, 'package.json', 'readme-units',
+]);
 export const VERSION_TOKEN = '@@VERSION@@';
 export const DATE_TOKEN = '@@DATE@@';
 export const MINOR_LINE_TOKEN = '@@MINOR_LINE@@';
@@ -44,6 +49,40 @@ export const MAX_BODY_PARTS = 4096;
 
 function fail(msg) {
   throw new Error(msg);
+}
+
+function foldedName(name) {
+  return name.toLowerCase();
+}
+
+function validateFileName(value, label) {
+  if (typeof value !== 'string' || value.length === 0 || value.trim().length === 0) {
+    fail(`polydoc.configure: ${label} must be a non-empty string`);
+  }
+  // Configuration names are single directory entries. Rejecting Windows
+  // syntax on every platform keeps a checked-in config portable.
+  if (value === '.' || value === '..' || /[\\/]/u.test(value) ||
+      /[\u0000-\u001f\u007f<>:"|?*]/u.test(value) ||
+      /[ .]$/u.test(value) || path.isAbsolute(value) ||
+      /^[A-Za-z]:/u.test(value) ||
+      /^(?:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?:\..*)?$/iu.test(value)) {
+    fail(`polydoc.configure: ${label} must be a safe file name without path separators or reserved Windows characters`);
+  }
+}
+
+function validateNameMap(config, key, langs) {
+  const values = config[key];
+  if (values === undefined) return [];
+  if (values === null || typeof values !== 'object' || Array.isArray(values)) {
+    fail(`polydoc.configure: ${key} must be an object of file names`);
+  }
+  const result = [];
+  for (const lang of langs) {
+    const value = values[lang];
+    validateFileName(value, `${key}.${lang}`);
+    result.push({ lang, value });
+  }
+  return result;
 }
 
 /// Must be called exactly once, before any other polydoc export is used
@@ -73,18 +112,32 @@ export function configure(config) {
       new Set(config.langs).size !== config.langs.length) {
     fail('polydoc.configure: langs must be a non-empty array of unique non-empty strings');
   }
-  if (config.outFileNames !== undefined) {
-    for (const lang of config.langs) {
-      if (typeof config.outFileNames[lang] !== 'string' || config.outFileNames[lang].length === 0) {
-        fail(`polydoc.configure: outFileNames.${lang} must be a non-empty string`);
-      }
-    }
+  const outNames = validateNameMap(config, 'outFileNames', config.langs);
+  const readmeNames = validateNameMap(config, 'readmeFileNames', config.langs);
+  const readmeSourceFile = config.readmeSourceFile ?? 'README.source.md';
+  validateFileName(readmeSourceFile, 'readmeSourceFile');
+  const sourceServiceName = CONTENT_SERVICE_FILE_NAMES.find(
+    (name) => foldedName(name) === foldedName(readmeSourceFile));
+  if (sourceServiceName !== undefined) {
+    fail(`polydoc.configure: readmeSourceFile ${JSON.stringify(readmeSourceFile)} conflicts with protected content input ${JSON.stringify(sourceServiceName)}`);
   }
-  if (config.readmeFileNames !== undefined) {
-    for (const lang of config.langs) {
-      if (typeof config.readmeFileNames[lang] !== 'string' || config.readmeFileNames[lang].length === 0) {
-        fail(`polydoc.configure: readmeFileNames.${lang} must be a non-empty string`);
-      }
+
+  const protectedNames = new Map([
+    ...CONTENT_SERVICE_FILE_NAMES.map((name) => [foldedName(name), name]),
+    [foldedName(readmeSourceFile), 'readmeSourceFile'],
+  ]);
+  const outputNames = [...outNames, ...readmeNames];
+  const seenOutputs = new Map();
+  for (const { lang, value } of outputNames) {
+    const folded = foldedName(value);
+    const prior = seenOutputs.get(folded);
+    if (prior !== undefined) {
+      fail(`polydoc.configure: output names ${JSON.stringify(prior.value)} (${prior.lang}) and ${JSON.stringify(value)} (${lang}) collide case-insensitively`);
+    }
+    seenOutputs.set(folded, { lang, value });
+    const protectedName = protectedNames.get(folded);
+    if (protectedName !== undefined) {
+      fail(`polydoc.configure: output name ${JSON.stringify(value)} conflicts with protected content input ${JSON.stringify(protectedName)}`);
     }
   }
   if (config.rootDocuments !== undefined &&
@@ -96,7 +149,7 @@ export function configure(config) {
   LANGS = [...config.langs];
   OUT_FILES = config.outFileNames !== undefined ? { ...config.outFileNames } : null;
   README_FILES = config.readmeFileNames !== undefined ? { ...config.readmeFileNames } : null;
-  README_SOURCE_FILE = config.readmeSourceFile ?? 'README.source.md';
+  README_SOURCE_FILE = readmeSourceFile;
   SECTION_INVENTORY_LOCK_FORMAT = config.sectionInventoryLockFormat ?? 'polydoc-section-inventory';
   ROOT_DOCUMENTS = config.rootDocuments !== undefined ? [...config.rootDocuments] : [];
 }

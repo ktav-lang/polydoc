@@ -9,6 +9,7 @@ import {
   configure,
   buildBuffers,
   writeBuildOutputs,
+  recoverBuildOutputTransaction,
   checkBuildOutputs,
 } from '@ktav-lang/polydoc';
 
@@ -25,7 +26,7 @@ const build = await buildBuffers('versions/1.0/content', {
   sectionInventoryLockPath: 'scripts/locks/section-inventory.1.0.lock.json',
 });
 
-// Write every output atomically, or verify it's already up to date:
+// Journaled process-crash recovery; this is not an atomic reader snapshot:
 await writeBuildOutputs('versions/1.0', 'versions/1.0/content', build);
 // checkBuildOutputs(specDir, contentDir, build) — throws on the first
 // byte-level divergence instead, for CI.
@@ -48,6 +49,7 @@ import {
   configure,
   buildBuffers,
   writeBuildOutputs,
+  recoverBuildOutputTransaction,
   checkBuildOutputs,
 } from '@ktav-lang/polydoc';
 
@@ -64,7 +66,7 @@ const build = await buildBuffers('versions/1.0/content', {
   sectionInventoryLockPath: 'scripts/locks/section-inventory.1.0.lock.json',
 });
 
-// Write every output atomically, or verify it's already up to date:
+// Журналируемое восстановление после падения процесса; не атомарный snapshot:
 await writeBuildOutputs('versions/1.0', 'versions/1.0/content', build);
 // checkBuildOutputs(specDir, contentDir, build) — throws on the first
 // byte-level divergence instead, for CI.
@@ -86,6 +88,7 @@ import {
   configure,
   buildBuffers,
   writeBuildOutputs,
+  recoverBuildOutputTransaction,
   checkBuildOutputs,
 } from '@ktav-lang/polydoc';
 
@@ -102,7 +105,7 @@ const build = await buildBuffers('versions/1.0/content', {
   sectionInventoryLockPath: 'scripts/locks/section-inventory.1.0.lock.json',
 });
 
-// Write every output atomically, or verify it's already up to date:
+// 通过日志支持进程崩溃恢复；这不是面向读者的原子 snapshot：
 await writeBuildOutputs('versions/1.0', 'versions/1.0/content', build);
 // checkBuildOutputs(specDir, contentDir, build) — throws on the first
 // byte-level divergence instead, for CI.

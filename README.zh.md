@@ -6,7 +6,7 @@
 **Languages:** [English](README.md) · [Русский](README.ru.md) · **简体中文**
 
 > 从按小节划分、三语对照翻译的源单元组装多语言文档——具备漂移防护、
-> 崩溃安全的原子写入,以及结构化的翻译一致性检查。
+> 支持日志恢复的写入,以及结构化的翻译一致性检查。
 
 **规范：** 这是从 [`ktav-lang/spec`](https://github.com/ktav-lang/spec)
 中提取出的通用文档构建引擎——正是同一套代码,用于从按小节划分、单文件内
@@ -32,9 +32,17 @@
 - **根文档组装**——为一批"看起来像手工维护"的文档(README、
   CHANGELOG 等)提供同样的单元形态,而无需完整规范才需要的编号标题
   与小节清单锁定机制。
-- **崩溃安全的原子写入器**——对所有输出文件一次性执行带日志的
-  两阶段提交、跨进程协作锁,以及在任意阶段中断后的完整恢复。在提取
-  该代码的项目中,已在每个阶段转换点通过 `SIGKILL` 注入测试验证。
+- **带日志的进程崩溃恢复写入**——`writeBuildOutputs` 记录事务，然后
+  按顺序逐个文件执行 backup 和 install。进程崩溃后，recovery 会恢复到
+  写入前的一致状态，或完成已经持久提交的事务。这不是面向无关读者的
+  原子 snapshot：在 backup/install 期间，读者可能暂时看到缺失、旧的或
+  新的文件。写入中断后，必须在下一次 build 或 validation 前调用
+  `recoverBuildOutputTransaction`。文件和目录刷新受平台支持限制；
+  Windows 及底层文件系统/存储设备会限制 durability，因此不承诺每次
+  已确认的写入都能在突然断电后保留。
+- **独立的根文档写入契约**——`writeRootDocs` 通过 `writeFileSync`
+  直接逐个写入根文档，不使用此日志，也不提供跨文件崩溃恢复或 snapshot
+  保证；写入后使用 `checkRootDocs`/`docs:check` 验证结果。
 - **文档注册表**——将每个公开的 Markdown 输出分类为生成型(重新构建
   并逐字节校验)、冻结型(历史文件,由 SHA-256 锁固定)或内部型,使
   过期的冻结文件与新出现却未注册的文件都能被发现,而不会悄悄发布。
@@ -58,6 +66,7 @@ import {
   configure,
   buildBuffers,
   writeBuildOutputs,
+  recoverBuildOutputTransaction,
   checkBuildOutputs,
 } from '@ktav-lang/polydoc';
 
@@ -74,7 +83,7 @@ const build = await buildBuffers('versions/1.0/content', {
   sectionInventoryLockPath: 'scripts/locks/section-inventory.1.0.lock.json',
 });
 
-// Write every output atomically, or verify it's already up to date:
+// 通过日志支持进程崩溃恢复；这不是面向读者的原子 snapshot：
 await writeBuildOutputs('versions/1.0', 'versions/1.0/content', build);
 // checkBuildOutputs(specDir, contentDir, build) — throws on the first
 // byte-level divergence instead, for CI.

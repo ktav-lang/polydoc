@@ -6,7 +6,7 @@
 **Languages:** **English** · [Русский](README.ru.md) · [简体中文](README.zh.md)
 
 > Assemble multi-language documents from per-section, triple-translated
-> source units — with drift protection, a crash-safe atomic writer, and
+> source units — with drift protection, a writer with journaled crash recovery,
 > structural translation-parity checks.
 
 **Specification:** this is a general-purpose extraction of the document
@@ -39,10 +39,20 @@ it.
   hand-maintained-feeling documents (README, CHANGELOG, ...), without
   the numbered-heading and section-inventory machinery a full spec
   needs.
-- **A crash-safe atomic writer** — journalled two-phase commit across
-  every output file at once, a cooperative cross-process lock, and full
-  recovery after a kill at any phase. Exercised under `SIGKILL`
-  injection at every transition in the codebase this was extracted from.
+- **Journalled crash recovery for output writes** — `writeBuildOutputs`
+  journals a transaction, then backs up and installs outputs sequentially,
+  one file at a time. After a process crash, recovery restores a consistent
+  pre-write state or completes a durable commit. This is not an atomic
+  snapshot for unrelated readers: during backup/install, a reader can
+  temporarily see missing, old, or new files. If a write is interrupted,
+  call `recoverBuildOutputTransaction` before the next build or validation.
+  File and directory flushing is limited by platform support; Windows and
+  the underlying filesystem/storage can limit durability, so this is not a
+  promise that every acknowledged write survives sudden power loss.
+- **A separate root-document write contract** — `writeRootDocs` writes each
+  root document directly with `writeFileSync`, without this journal or
+  cross-file crash recovery. It provides no cross-file snapshot guarantee;
+  use `checkRootDocs`/`docs:check` to validate the result afterward.
 - **A docs registry** — classifies every public Markdown output as
   generated (rebuilt and byte-checked), frozen (historical, pinned by a
   SHA-256 lock) or internal, so a stale frozen file and a brand-new
@@ -68,6 +78,7 @@ import {
   configure,
   buildBuffers,
   writeBuildOutputs,
+  recoverBuildOutputTransaction,
   checkBuildOutputs,
 } from '@ktav-lang/polydoc';
 
@@ -84,7 +95,7 @@ const build = await buildBuffers('versions/1.0/content', {
   sectionInventoryLockPath: 'scripts/locks/section-inventory.1.0.lock.json',
 });
 
-// Write every output atomically, or verify it's already up to date:
+// Journaled process-crash recovery; this is not an atomic reader snapshot:
 await writeBuildOutputs('versions/1.0', 'versions/1.0/content', build);
 // checkBuildOutputs(specDir, contentDir, build) — throws on the first
 // byte-level divergence instead, for CI.

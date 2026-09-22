@@ -1,7 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { LANGS, OUT_FILES, README_FILES, README_SOURCE_FILE } from './config.mjs';
+import {
+  CONTENT_SERVICE_FILE_NAMES,
+  LANGS,
+  OUT_FILES,
+  README_FILES,
+  README_SOURCE_FILE,
+} from './config.mjs';
 import { fail } from './units/decode.mjs';
 import { assertRegularDestination } from './content.mjs';
 import {
@@ -81,11 +87,28 @@ function validateWriteRoots(specDir, contentDir) {
   }
 }
 
+function validateOutputTargets(specDir, contentDir) {
+  const protectedPaths = [
+    ...CONTENT_SERVICE_FILE_NAMES.flatMap((name) => [
+      path.join(specDir, name), path.join(contentDir, name),
+    ]),
+    path.join(contentDir, README_SOURCE_FILE),
+  ].map((filePath) => path.resolve(filePath).toLowerCase());
+  for (const { root, name } of transactionOutputs()) {
+    const directory = root === 'spec' ? specDir : contentDir;
+    const destination = path.resolve(directory, name).toLowerCase();
+    if (protectedPaths.includes(destination)) {
+      fail(`configured output ${name} would overwrite a protected input at ${path.resolve(directory, name)}`);
+    }
+  }
+}
+
 export function writeBuildOutputs(specDir, contentDir, { bufs, readmeBufs }, options = {}) {
   const outputs = transactionOutputs();
   const resolvedSpecDir = path.resolve(specDir);
   const resolvedContentDir = path.resolve(contentDir);
   validateWriteRoots(resolvedSpecDir, resolvedContentDir);
+  validateOutputTargets(resolvedSpecDir, resolvedContentDir);
   const writeOptions = {
     ...options, reclaimedOwners: options.reclaimedOwners || [], resumeCurrentOwner: true,
   };
