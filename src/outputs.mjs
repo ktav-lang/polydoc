@@ -215,6 +215,9 @@ export function writeBuildOutputs(specDir, contentDir, { bufs, readmeBufs }, opt
     // new bytes after this snapshot is published.
     state.phase = 'committed';
     writeJournalSnapshot(resolvedSpecDir, state, true, writeSync, guard);
+    if (process.env.KTAV_BUILD_SPEC_CRASH_AFTER_COMMIT === '1') {
+      process.kill(process.pid, 'SIGKILL');
+    }
 
     state.phase = 'cleaning';
     writeJournalSnapshot(resolvedSpecDir, state, true, writeSync, guard);

@@ -75,38 +75,15 @@ function runCrash(specDir, contentDir, variable, value) {
 }
 
 function runCrashAfterCommit(specDir, contentDir) {
-  return new Promise((resolve, reject) => {
-    let killed = false;
-    let child;
-    const watcher = fs.watch(specDir, (event, name) => {
-      if (killed || name !== TRANSACTION_JOURNAL_FILE) return;
-      try {
-        const state = JSON.parse(fs.readFileSync(path.join(specDir, name), 'utf8'));
-        if (state.phase !== 'committed' && state.phase !== 'cleaning') return;
-        killed = true;
-        process.kill(child.pid, 'SIGKILL');
-      } catch {
-        // The journal may be between its private and published names.
-      }
-    });
-    child = spawn(process.execPath, [fixtureScript, specDir, contentDir], {
-      env: { ...process.env },
-    });
-    child.once('error', (error) => {
-      watcher.close();
-      reject(error);
-    });
-    child.once('exit', (code, signal) => {
-      watcher.close();
-      if (!killed) {
-        reject(new Error(`writer exited before the committed snapshot: ${code}/${signal}`));
-      } else if (code === 0 && signal === null) {
-        reject(new Error('writer was not terminated after the committed snapshot'));
-      } else {
-        resolve();
-      }
-    });
+  const result = spawnSync(process.execPath, [fixtureScript, specDir, contentDir], {
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      KTAV_BUILD_SPEC_CRASH_AFTER_COMMIT: '1',
+      KTAV_TEST_PROCESS_INCARNATION: CRASH_INCARNATION,
+    },
   });
+  assert.notEqual(result.status, 0, 'child must be killed after the committed snapshot');
 }
 
 async function exitedPid() {
