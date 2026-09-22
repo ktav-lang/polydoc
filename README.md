@@ -5,11 +5,12 @@
 
 **Languages:** **English** · [Русский](README.ru.md) · [简体中文](README.zh.md)
 
-> Assemble multi-language documents from per-section, triple-translated
-> source units — with drift protection, a writer with journaled crash recovery,
-> structural translation-parity checks.
+> Assemble multi-language documents from per-section source units that
+> carry every configured language — with drift protection, journalled
+> crash recovery for output writes, and structural translation-parity
+> checks.
 
-**Specification:** this is a general-purpose extraction of the document
+**Origin:** this is a general-purpose extraction of the document
 build engine behind [`ktav-lang/spec`](https://github.com/ktav-lang/spec) —
 the same code that assembles the Ktav specification's own `spec.md` and
 its root documents (README, CHANGELOG, CONTRIBUTING, SECURITY) from
@@ -68,6 +69,8 @@ it.
 npm install @ktav-lang/polydoc
 ```
 
+Requires Node.js 24 or later.
+
 ## Usage
 
 `configure()` must run once, before anything else — it fixes the
@@ -95,8 +98,8 @@ const build = await buildBuffers('versions/1.0/content', {
   sectionInventoryLockPath: 'scripts/locks/section-inventory.1.0.lock.json',
 });
 
-// Journaled process-crash recovery; this is not an atomic reader snapshot:
-await writeBuildOutputs('versions/1.0', 'versions/1.0/content', build);
+// Journalled process-crash recovery; this is not an atomic reader snapshot:
+writeBuildOutputs('versions/1.0', 'versions/1.0/content', build);
 // checkBuildOutputs(specDir, contentDir, build) — throws on the first
 // byte-level divergence instead, for CI.
 ```

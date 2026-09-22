@@ -15,7 +15,10 @@
   added, removed or renumbered section a deliberate, printed act.
 - Root-document assembly (`buildRootDocs`/`writeRootDocs`/`checkRootDocs`)
   for documents built from small per-topic units instead of one
-  hand-maintained file per language.
+  hand-maintained file per language. `writeRootDocs` writes each document
+  directly, without the output-write journal or cross-file crash
+  recovery; validate the result with `checkRootDocs`.
+- Requires Node.js 24 or later.
 
 >>>>> lang=ru
 ## 0.1.0 — 2026-09-22
@@ -35,7 +38,10 @@
   осознанным и печатаемым действием.
 - Сборка корневых документов (`buildRootDocs`/`writeRootDocs`/`checkRootDocs`)
   для документов, собираемых из небольших посекционных юнитов вместо
-  одного вручную ведущегося файла на язык.
+  одного вручную ведущегося файла на язык. `writeRootDocs` записывает
+  каждый документ напрямую, без журнала записи выходных файлов и
+  межфайлового crash recovery; результат проверяйте через `checkRootDocs`.
+- Требуется Node.js 24 или новее.
 
 >>>>> lang=zh
 ## 0.1.0 — 2026-09-22
@@ -53,5 +59,7 @@
   成为一次明确、可打印记录的操作的小节清单锁定机制。
 - 根文档组装(`buildRootDocs`/`writeRootDocs`/`checkRootDocs`),面向
   由小型按主题划分的单元构建的文档,取代每种语言一份手工维护文件的
-  模式。
+  模式。`writeRootDocs` 直接逐个写入文档，不使用输出写入日志，也不提供
+  跨文件崩溃恢复；写入后使用 `checkRootDocs` 验证结果。
+- 需要 Node.js 24 或更高版本。
 

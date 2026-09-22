@@ -26,8 +26,8 @@ const build = await buildBuffers('versions/1.0/content', {
   sectionInventoryLockPath: 'scripts/locks/section-inventory.1.0.lock.json',
 });
 
-// Journaled process-crash recovery; this is not an atomic reader snapshot:
-await writeBuildOutputs('versions/1.0', 'versions/1.0/content', build);
+// Journalled process-crash recovery; this is not an atomic reader snapshot:
+writeBuildOutputs('versions/1.0', 'versions/1.0/content', build);
 // checkBuildOutputs(specDir, contentDir, build) — throws on the first
 // byte-level divergence instead, for CI.
 ```
@@ -67,7 +67,7 @@ const build = await buildBuffers('versions/1.0/content', {
 });
 
 // Журналируемое восстановление после падения процесса; не атомарный snapshot:
-await writeBuildOutputs('versions/1.0', 'versions/1.0/content', build);
+writeBuildOutputs('versions/1.0', 'versions/1.0/content', build);
 // checkBuildOutputs(specDir, contentDir, build) — throws on the first
 // byte-level divergence instead, for CI.
 ```
@@ -106,7 +106,7 @@ const build = await buildBuffers('versions/1.0/content', {
 });
 
 // 通过日志支持进程崩溃恢复；这不是面向读者的原子 snapshot：
-await writeBuildOutputs('versions/1.0', 'versions/1.0/content', build);
+writeBuildOutputs('versions/1.0', 'versions/1.0/content', build);
 // checkBuildOutputs(specDir, contentDir, build) — throws on the first
 // byte-level divergence instead, for CI.
 ```

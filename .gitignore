@@ -2,3 +2,6 @@ node_modules/
 
 # /wrush task worktrees — always created here, in-tree
 /worktrees/
+
+# local session checkpoints — never published
+/docs/checkpoints/

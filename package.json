@@ -1,7 +1,7 @@
 {
   "name": "@ktav-lang/polydoc",
   "version": "0.1.0",
-  "description": "Assemble multi-language documents from per-section triple-translated source units, with drift protection, a crash-safe atomic writer, and structural translation-parity checks.",
+  "description": "Assemble multi-language documents from per-section source units that carry every configured language, with drift protection, journalled crash recovery for output writes, and structural translation-parity checks.",
   "type": "module",
   "main": "src/index.mjs",
   "exports": {

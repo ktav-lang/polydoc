@@ -5,11 +5,11 @@
 
 **Languages:** [English](README.md) · **Русский** · [简体中文](README.zh.md)
 
-> Собирает многоязычные документы из посекционных, тройно переведённых
-> исходных юнитов — с защитой от дрейфа, журналируемым восстановлением
+> Собирает многоязычные документы из посекционных исходных юнитов,
+> несущих все настроенные языки — с защитой от дрейфа, журналируемым восстановлением
 > после падения процесса и структурными проверками паритета переводов.
 
-**Спецификация:** это универсальное извлечение движка сборки документов
+**Происхождение:** это универсальное извлечение движка сборки документов
 из [`ktav-lang/spec`](https://github.com/ktav-lang/spec) — того же кода,
 что собирает `spec.md` спецификации Ktav и её корневые документы
 (README, CHANGELOG, CONTRIBUTING, SECURITY) из посекционных исходных
@@ -74,6 +74,8 @@
 npm install @ktav-lang/polydoc
 ```
 
+Требуется Node.js 24 или новее.
+
 ## Использование
 
 `configure()` должна быть вызвана один раз, прежде чем что-либо ещё —
@@ -103,7 +105,7 @@ const build = await buildBuffers('versions/1.0/content', {
 });
 
 // Журналируемое восстановление после падения процесса; не атомарный snapshot:
-await writeBuildOutputs('versions/1.0', 'versions/1.0/content', build);
+writeBuildOutputs('versions/1.0', 'versions/1.0/content', build);
 // checkBuildOutputs(specDir, contentDir, build) — throws on the first
 // byte-level divergence instead, for CI.
 ```

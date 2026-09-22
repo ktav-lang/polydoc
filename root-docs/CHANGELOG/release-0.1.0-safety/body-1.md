@@ -1,10 +1,15 @@
 >>>>> lang=en
-- A crash-safe atomic multi-file writer (`writeBuildOutputs`): journalled
-  two-phase commit with backup/install/cleanup phases, a cooperative
-  cross-process lock with lease/incarnation/quarantine handling, and full
-  recovery after a kill at any point — the journal format and lock
-  protocol are unchanged from the code this was extracted from, which has
-  exercised them under `SIGKILL` injection at every phase transition.
+- Journalled crash recovery for output writes (`writeBuildOutputs`):
+  a journalled two-phase commit with backup/install/cleanup phases,
+  applied sequentially one file at a time, and a cooperative
+  cross-process lock with lease/incarnation/quarantine handling. After a
+  process crash, `recoverBuildOutputTransaction` restores a consistent
+  pre-write state or completes a durable commit; it is not an atomic
+  snapshot for unrelated readers, and durability is limited by platform
+  and storage flushing support. The journal format and lock protocol are
+  carried over unchanged from `ktav-lang/spec`; the test suite kills a
+  real writer process with `SIGKILL` at injected crash points and checks
+  recovery.
 - A docs registry (`checkDocsRegistry`/`writeFrozenDocsLock`): classifies
   every public Markdown output as generated (rebuilt and byte-checked),
   frozen (historical, pinned by a SHA-256 lock) or internal, so neither a
@@ -18,13 +23,18 @@
   generated section headings out of unit bodies, correctly aware of
   fenced code, block quotes, lists and link reference definitions.
 >>>>> lang=ru
-- Crash-safe атомарный multi-file writer (`writeBuildOutputs`):
-  журналируемый two-phase commit с фазами backup/install/cleanup,
-  кооперативная межпроцессная блокировка с обработкой
-  lease/incarnation/quarantine и полное восстановление после падения на
-  любой точке — формат журнала и протокол блокировки не изменены
-  относительно кода, из которого это извлечено, а тот проверялся под
-  инъекцией `SIGKILL` на каждом переходе фазы.
+- Журналируемое восстановление записи после падения процесса
+  (`writeBuildOutputs`): журналируемый two-phase commit с фазами
+  backup/install/cleanup, выполняемыми последовательно по одному файлу,
+  и кооперативная межпроцессная блокировка с обработкой
+  lease/incarnation/quarantine. После падения процесса
+  `recoverBuildOutputTransaction` возвращает согласованное состояние до
+  записи или завершает надёжно зафиксированный commit; это не атомарный
+  snapshot для сторонних читателей, а durability ограничена
+  возможностями платформы и хранилища по сбросу данных. Формат журнала и
+  протокол блокировки перенесены из `ktav-lang/spec` без изменений;
+  тесты убивают реальный процесс записи через `SIGKILL` во внедрённых
+  точках падения и проверяют восстановление.
 - Реестр документов (`checkDocsRegistry`/`writeFrozenDocsLock`):
   классифицирует каждый публичный Markdown-выход как генерируемый
   (пересобирается и сверяется побайтно), замороженный (исторический,
@@ -41,10 +51,13 @@
   юнитов, корректно распознающий блоки кода, цитаты, списки и
   определения ссылок.
 >>>>> lang=zh
-- 崩溃安全的原子多文件写入器(`writeBuildOutputs`):带备份/安装/清理
-  阶段的日志式两阶段提交、具备租约/化身/隔离处理的跨进程协作锁,以及
-  在任意时刻被中断后的完整恢复——日志格式与锁协议与被提取自的代码
-  保持一致,该代码已在每个阶段转换点通过 `SIGKILL` 注入测试验证。
+- 带日志的进程崩溃恢复写入(`writeBuildOutputs`):带备份/安装/清理
+  阶段、按顺序逐个文件执行的日志式两阶段提交，以及具备租约/化身/隔离
+  处理的跨进程协作锁。进程崩溃后,`recoverBuildOutputTransaction` 会
+  恢复到写入前的一致状态，或完成已经持久提交的事务；这不是面向无关
+  读者的原子 snapshot,durability 也受平台与存储设备刷新能力的限制。
+  日志格式与锁协议从 `ktav-lang/spec` 原样沿用；测试套件会在注入的
+  崩溃点用 `SIGKILL` 终止真实的写入进程，并验证恢复结果。
 - 文档注册表(`checkDocsRegistry`/`writeFrozenDocsLock`):将每个公开
   的 Markdown 输出分类为生成型(重新构建并逐字节校验)、冻结型(历史
   文件,由 SHA-256 锁固定)或内部型,使过期的冻结文件与新出现却未

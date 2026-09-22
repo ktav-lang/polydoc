@@ -5,10 +5,10 @@
 
 **Languages:** [English](README.md) · [Русский](README.ru.md) · **简体中文**
 
-> 从按小节划分、三语对照翻译的源单元组装多语言文档——具备漂移防护、
+> 从按小节划分、携带全部已配置语言的源单元组装多语言文档——具备漂移防护、
 > 支持日志恢复的写入,以及结构化的翻译一致性检查。
 
-**规范：** 这是从 [`ktav-lang/spec`](https://github.com/ktav-lang/spec)
+**来源：** 这是从 [`ktav-lang/spec`](https://github.com/ktav-lang/spec)
 中提取出的通用文档构建引擎——正是同一套代码,用于从按小节划分、单文件内
 承载所有语言的源单元组装出 Ktav 规范自身的 `spec.md` 及其根文档
 (README、CHANGELOG、CONTRIBUTING、SECURITY)。
@@ -56,6 +56,8 @@
 npm install @ktav-lang/polydoc
 ```
 
+需要 Node.js 24 或更高版本。
+
 ## 用法
 
 `configure()` 必须在使用任何其他功能之前调用一次——它为整个流程
@@ -84,7 +86,7 @@ const build = await buildBuffers('versions/1.0/content', {
 });
 
 // 通过日志支持进程崩溃恢复；这不是面向读者的原子 snapshot：
-await writeBuildOutputs('versions/1.0', 'versions/1.0/content', build);
+writeBuildOutputs('versions/1.0', 'versions/1.0/content', build);
 // checkBuildOutputs(specDir, contentDir, build) — throws on the first
 // byte-level divergence instead, for CI.
 ```

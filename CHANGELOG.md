@@ -23,14 +23,22 @@ that a MINOR bump is breaking.
   added, removed or renumbered section a deliberate, printed act.
 - Root-document assembly (`buildRootDocs`/`writeRootDocs`/`checkRootDocs`)
   for documents built from small per-topic units instead of one
-  hand-maintained file per language.
+  hand-maintained file per language. `writeRootDocs` writes each document
+  directly, without the output-write journal or cross-file crash
+  recovery; validate the result with `checkRootDocs`.
+- Requires Node.js 24 or later.
 
-- A crash-safe atomic multi-file writer (`writeBuildOutputs`): journalled
-  two-phase commit with backup/install/cleanup phases, a cooperative
-  cross-process lock with lease/incarnation/quarantine handling, and full
-  recovery after a kill at any point — the journal format and lock
-  protocol are unchanged from the code this was extracted from, which has
-  exercised them under `SIGKILL` injection at every phase transition.
+- Journalled crash recovery for output writes (`writeBuildOutputs`):
+  a journalled two-phase commit with backup/install/cleanup phases,
+  applied sequentially one file at a time, and a cooperative
+  cross-process lock with lease/incarnation/quarantine handling. After a
+  process crash, `recoverBuildOutputTransaction` restores a consistent
+  pre-write state or completes a durable commit; it is not an atomic
+  snapshot for unrelated readers, and durability is limited by platform
+  and storage flushing support. The journal format and lock protocol are
+  carried over unchanged from `ktav-lang/spec`; the test suite kills a
+  real writer process with `SIGKILL` at injected crash points and checks
+  recovery.
 - A docs registry (`checkDocsRegistry`/`writeFrozenDocsLock`): classifies
   every public Markdown output as generated (rebuilt and byte-checked),
   frozen (historical, pinned by a SHA-256 lock) or internal, so neither a
