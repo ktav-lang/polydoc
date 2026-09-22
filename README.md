@@ -3,6 +3,8 @@
 
 # polydoc
 
+**Languages:** **English** · [Русский](README.ru.md) · [简体中文](README.zh.md)
+
 > Assemble multi-language documents from per-section, triple-translated
 > source units — with drift protection, a crash-safe atomic writer, and
 > structural translation-parity checks.

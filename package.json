@@ -11,12 +11,18 @@
     "node": ">=18"
   },
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "docs:build": "node scripts/build-docs.mjs",
+    "docs:check": "node scripts/build-docs.mjs --check"
   },
   "files": [
     "src",
     "README.md",
+    "README.ru.md",
+    "README.zh.md",
     "CHANGELOG.md",
+    "CHANGELOG.ru.md",
+    "CHANGELOG.zh.md",
     "LICENSE-MIT",
     "LICENSE-APACHE"
   ],

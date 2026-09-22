@@ -1,5 +1,7 @@
 # Changelog
 
+**Languages:** **English** · [Русский](CHANGELOG.ru.md) · [简体中文](CHANGELOG.zh.md)
+
 All notable changes to this project are documented here. The format is
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioning is
 [Semantic Versioning](https://semver.org/) with the pre-1.0 convention
@@ -22,6 +24,7 @@ that a MINOR bump is breaking.
 - Root-document assembly (`buildRootDocs`/`writeRootDocs`/`checkRootDocs`)
   for documents built from small per-topic units instead of one
   hand-maintained file per language.
+
 - A crash-safe atomic multi-file writer (`writeBuildOutputs`): journalled
   two-phase commit with backup/install/cleanup phases, a cooperative
   cross-process lock with lease/incarnation/quarantine handling, and full

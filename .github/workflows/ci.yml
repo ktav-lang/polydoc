@@ -26,3 +26,6 @@ jobs:
 
       - name: Run the test suite
         run: npm test
+
+      - name: Check generated docs are up to date
+        run: npm run docs:check

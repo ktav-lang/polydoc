@@ -17,4 +17,6 @@ configure({
 
 const [, , specDir, contentDir] = process.argv;
 const build = await buildBuffers(contentDir);
-await writeBuildOutputs(specDir, contentDir, build);
+const processIncarnation = process.env.KTAV_TEST_PROCESS_INCARNATION;
+await writeBuildOutputs(specDir, contentDir, build,
+  processIncarnation === undefined ? {} : { processIncarnation });
