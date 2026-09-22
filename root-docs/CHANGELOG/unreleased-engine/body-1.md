@@ -1,5 +1,5 @@
 >>>>> lang=en
-## Unreleased
+## 0.1.0 — 2026-09-22
 
 ### Added
 
@@ -18,7 +18,7 @@
   hand-maintained file per language.
 
 >>>>> lang=ru
-## Unreleased
+## 0.1.0 — 2026-09-22
 
 ### Добавлено
 
@@ -38,7 +38,7 @@
   одного вручную ведущегося файла на язык.
 
 >>>>> lang=zh
-## Unreleased
+## 0.1.0 — 2026-09-22
 
 ### 新增
 

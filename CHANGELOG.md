@@ -7,7 +7,7 @@ All notable changes to this project are documented here. The format is
 [Semantic Versioning](https://semver.org/) with the pre-1.0 convention
 that a MINOR bump is breaking.
 
-## Unreleased
+## 0.1.0 — 2026-09-22
 
 ### Added
 

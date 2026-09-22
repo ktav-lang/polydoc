@@ -7,7 +7,7 @@
 [Semantic Versioning](https://semver.org/) с pre-1.0-соглашением о том,
 что MINOR-bump может быть ломающим.
 
-## Unreleased
+## 0.1.0 — 2026-09-22
 
 ### Добавлено
 

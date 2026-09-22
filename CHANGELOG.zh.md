@@ -7,7 +7,7 @@
 [Semantic Versioning](https://semver.org/),并采用 pre-1.0 约定:
 MINOR 版本号递增可以是破坏性变更。
 
-## Unreleased
+## 0.1.0 — 2026-09-22
 
 ### 新增
 
