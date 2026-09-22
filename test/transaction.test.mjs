@@ -18,7 +18,13 @@ import { baseFixtures, makeContent, write } from './helpers.mjs';
 const fixtureScript = fileURLToPath(new URL('../test-support/write-outputs.mjs', import.meta.url));
 
 function tempSpecDir() {
-  const specDir = fs.mkdtempSync(path.join(os.tmpdir(), 'polydoc-txn-'));
+  // resolvedWriteRoot() deliberately refuses a symlinked ANCESTOR (not
+  // just the leaf) — a defense against a write root escaping outside the
+  // intended tree. macOS's os.tmpdir() resolves under /var, itself a
+  // symlink to /private/var, so the raw mkdtemp path must be realpath'd
+  // before use, exactly as a real caller's already-checked-out repository
+  // root would be.
+  const specDir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'polydoc-txn-')));
   const contentDir = path.join(specDir, 'content');
   makeContent(specDir, baseFixtures(), baseFixtures().map((u) => u.name));
   for (const readme of ['README.md', 'README.ru.md', 'README.zh.md']) {
