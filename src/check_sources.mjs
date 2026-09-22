@@ -145,6 +145,8 @@ function checkListParity(units, problems) {
 /// a bullet the reference fits on one line, using a continuation indent
 /// the reference had no occasion for.
 function checkIndentShapes(units, problems) {
+  const referenceLang = LANGS[0];
+  const referenceLabel = referenceLang === 'en' ? 'English' : referenceLang;
   for (const { unit, parts } of units) {
     parts.forEach((blocks, partIndex) => {
       const shape = (text) => {
@@ -158,14 +160,14 @@ function checkIndentShapes(units, problems) {
         }
         return { indents, markerIndents };
       };
-      const en = shape(blocks.en);
+      const reference = shape(blocks[referenceLang]);
       for (const lang of LANGS) {
-        if (lang === 'en') continue;
+        if (lang === referenceLang) continue;
         const t = shape(blocks[lang]);
         for (const indent of t.indents) {
-          if (en.indents.has(indent) || t.markerIndents.has(indent)) continue;
+          if (reference.indents.has(indent) || t.markerIndents.has(indent)) continue;
           problems.push(`${unit} part ${partIndex + 1}: ${lang} indents by ${indent}, ` +
-            `which English never uses and no list marker in the block justifies`);
+            `which ${referenceLabel} never uses and no list marker in the block justifies`);
         }
       }
     });
@@ -186,19 +188,21 @@ const WIDTH_RATIO = 1.4;
 const WIDTH_MARGIN = 20;
 
 function checkUnwrapped(units, problems) {
+  const referenceLang = LANGS[0];
+  const referencePhrase = referenceLang === 'en' ? 'an English' : `the ${referenceLang}`;
   for (const { unit, parts } of units) {
     parts.forEach((blocks, partIndex) => {
       const widest = (text) => proseLines(text)
         .reduce((max, r) => Math.max(max, displayWidth(r.line)), 0);
-      const enMax = widest(blocks.en);
-      if (enMax === 0) return;
+      const referenceMax = widest(blocks[referenceLang]);
+      if (referenceMax === 0) return;
       for (const lang of LANGS) {
-        if (lang === 'en') continue;
+        if (lang === referenceLang) continue;
         for (const { number, line } of proseLines(blocks[lang])) {
           const width = displayWidth(line);
-          if (width > enMax * WIDTH_RATIO && width > enMax + WIDTH_MARGIN) {
+          if (width > referenceMax * WIDTH_RATIO && width > referenceMax + WIDTH_MARGIN) {
             problems.push(`${unit} part ${partIndex + 1}: ${lang} line ${number} is ` +
-              `${width} columns against an English maximum of ${enMax}; ` +
+              `${width} columns against ${referencePhrase} maximum of ${referenceMax}; ` +
               're-wrap it, the paragraph was edited without re-wrapping');
           }
         }

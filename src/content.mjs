@@ -535,10 +535,19 @@ export function validateUnitTerminalNewlines(unit, parts, isLast) {
   }
 }
 
-const TOP_LEVEL_ALLOWED_FILES = new Set([
-  'README.md', 'README.ru.md', 'README.zh.md', README_SOURCE_FILE,
+export const TOP_LEVEL_ALLOWED_FILES = new Set([
+  'README.md', 'README.ru.md', 'README.zh.md', 'README.source.md',
   RELEASE_FILE, 'manifest.js', 'package.json',
 ]);
+
+function topLevelAllowedFiles() {
+  const readmeFiles = README_FILES === null
+    ? ['README.md', 'README.ru.md', 'README.zh.md']
+    : Object.values(README_FILES);
+  return new Set([
+    ...readmeFiles, README_SOURCE_FILE, RELEASE_FILE, 'manifest.js', 'package.json',
+  ]);
+}
 
 // Closed-world validation of a content dir. Throws Error on first violation.
 // Returns { manifest, units } where units is a Map unit -> { meta, parts }.
@@ -617,6 +626,7 @@ export async function validateContentDir(contentDir, options = {}) {
   // only the top level may hold files, and only the allowlisted ones.
   // Anything the manifest did not name is rejected wherever it appears,
   // so nesting widens the tree without widening what is accepted.
+  const allowedFiles = topLevelAllowedFiles();
   const actualDirs = new Set();
   const actualFiles = new Set();
 
@@ -637,7 +647,7 @@ export async function validateContentDir(contentDir, options = {}) {
         if (rel !== '') {
           fail(`unexpected file under content/: "${child}" (a group directory holds only unit directories)`);
         }
-        if (!TOP_LEVEL_ALLOWED_FILES.has(ent.name)) {
+        if (!allowedFiles.has(ent.name)) {
           fail(`unexpected file under content/: "${ent.name}"`);
         }
         actualFiles.add(ent.name);
@@ -657,7 +667,7 @@ export async function validateContentDir(contentDir, options = {}) {
   // 2b. Exactly one README source shape is required input: either
   // README_SOURCE_FILE (single file) or readme-units/manifest.js (unit
   // tree, same shape root_doc_units.mjs uses for the repository-root
-  // documents). The three generated README outputs remain allowlisted
+  // documents). The configured generated README outputs remain allowlisted
   // above, but validation must permit them to be absent so normal write
   // mode can restore them. --check requires and byte-compares all three
   // outputs below.
@@ -886,4 +896,4 @@ export function assertRegularDestination(destination) {
   return true;
 }
 
-export { DERIVED_TOKEN_RE, LOCK_ROOT_KEYS, LOCK_UNIT_KEYS, RELEASE_DATE_RE, RELEASE_KEY_ORDER, RELEASE_VERSION_RE, TOP_LEVEL_ALLOWED_FILES };
+export { DERIVED_TOKEN_RE, LOCK_ROOT_KEYS, LOCK_UNIT_KEYS, RELEASE_DATE_RE, RELEASE_KEY_ORDER, RELEASE_VERSION_RE };

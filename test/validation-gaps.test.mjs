@@ -9,6 +9,8 @@ import {
   buildRootDocs,
   checkDocsRegistry,
   checkRootDocs,
+  checkSources,
+  configure,
   defaultFrozenDocsLockPath,
   expectedGeneratedPaths,
   frozenSha256,
@@ -53,6 +55,16 @@ function registryForFrozen(frozen) {
 
 function writeFrozenLock(lockPath, files) {
   write(lockPath, JSON.stringify({ format: 'ktav-frozen-docs', files }, null, 2) + '\n');
+}
+
+function restoreConfig() {
+  configure({
+    langs: ['en', 'ru', 'zh'],
+    outFileNames: { en: 'spec.md', ru: 'spec.ru.md', zh: 'spec.zh.md' },
+    readmeFileNames: { en: 'README.md', ru: 'README.ru.md', zh: 'README.zh.md' },
+    sectionInventoryLockFormat: 'polydoc-test-section-inventory',
+    rootDocuments: ['README', 'CHANGELOG'],
+  });
 }
 
 async function validateWithLock(lockValue, mutate) {
@@ -342,5 +354,44 @@ test('frozen lock reports missing, extra, unsorted, malformed, and mismatched en
     assert.deepEqual(checkDocsRegistry(temp, registry, lockPath, 'versions/1.0'), []);
   } finally {
     fs.rmSync(temp, { recursive: true, force: true });
+  }
+});
+
+test('content validation follows configured README output and source names', async () => {
+  const root = tempDir('polydoc-configured-readme-gap-');
+  const readmeFiles = { en: 'Guide.md', ru: 'Guide.ru.md', zh: 'Guide.zh.md' };
+  try {
+    configure({
+      langs: ['en', 'ru', 'zh'],
+      outFileNames: { en: 'spec.md', ru: 'spec.ru.md', zh: 'spec.zh.md' },
+      readmeFileNames: readmeFiles,
+      readmeSourceFile: 'Guide.source.md',
+      sectionInventoryLockFormat: 'polydoc-test-section-inventory',
+      rootDocuments: ['README', 'CHANGELOG'],
+    });
+    const fixtures = baseFixtures();
+    makeContent(root, fixtures, fixtures.map((u) => u.name));
+    const contentDir = path.join(root, 'content');
+    for (const file of Object.values(readmeFiles)) write(path.join(contentDir, file), 'generated\n');
+    const result = await validateContentDir(contentDir);
+    assert.equal(result.readmes.en.startsWith('# content README'), true);
+  } finally {
+    restoreConfig();
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('checkSources uses the first configured language as its reference language', () => {
+  try {
+    configure({ langs: ['de', 'fr'] });
+    const { problems } = checkSources([{
+      unit: 'abschnitt-1',
+      parts: [{ de: 'text\n', fr: '  texte\n' }],
+    }]);
+    assert.deepEqual(problems, [
+      'abschnitt-1 part 1: fr indents by 2, which de never uses and no list marker in the block justifies',
+    ]);
+  } finally {
+    restoreConfig();
   }
 });
