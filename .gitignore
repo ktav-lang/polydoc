@@ -1,0 +1,4 @@
+node_modules/
+
+# /wrush task worktrees — always created here, in-tree
+/worktrees/

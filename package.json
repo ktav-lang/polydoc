@@ -1,0 +1,43 @@
+{
+  "name": "@ktav-lang/polydoc",
+  "version": "0.1.0",
+  "description": "Assemble multi-language documents from per-section triple-translated source units, with drift protection, a crash-safe atomic writer, and structural translation-parity checks.",
+  "type": "module",
+  "main": "src/index.mjs",
+  "exports": {
+    ".": "./src/index.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE-MIT",
+    "LICENSE-APACHE"
+  ],
+  "keywords": [
+    "documentation",
+    "documentation-generator",
+    "markdown",
+    "i18n",
+    "l10n",
+    "localization",
+    "translation",
+    "ktav"
+  ],
+  "author": "Marat K <phpcraftdream@gmail.com>",
+  "license": "MIT OR Apache-2.0",
+  "homepage": "https://github.com/ktav-lang/polydoc",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ktav-lang/polydoc.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ktav-lang/polydoc/issues"
+  }
+}
