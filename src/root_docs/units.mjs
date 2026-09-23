@@ -30,12 +30,12 @@ import path from 'node:path';
 
 import {
   readJsonDefault, validateBodySplitting, validateUnitTerminalNewlines,
-} from './content.mjs';
-import { BODY_FILE_RE, LANGS, bodyFileName } from './config.mjs';
+} from '../content/tree.mjs';
+import { BODY_FILE_RE, LANGS, bodyFileName } from '../config.mjs';
 import {
   decodeUtf8Strict, fail, failUnit, rejectRawCarriageReturns, validateBodyPart, validateMeta,
-} from './units/decode.mjs';
-import { validateBodySourceShape } from './units/containers.mjs';
+} from '../units/decode.mjs';
+import { validateBodySourceShape } from '../units/containers.mjs';
 
 /// `rootDocsDir` is e.g. `<repoRoot>/root-docs/README`. Returns `null` when
 /// the directory (or its manifest.js) does not exist — the caller's signal

@@ -335,6 +335,15 @@ function readLockClaim(claimPath, label = 'transaction lock claim') {
 
 function lockIsActive(specDir, lock, now, options = {}) {
   if (!pidIsLive(lock.pid)) return false;
+  // A live PID alone does not prove it is still the recorded owner: the OS
+  // can reassign a freed PID to an unrelated process before any lease
+  // expires. When both incarnations are known and they disagree, the PID
+  // was reused — the original owner is provably gone, lease notwithstanding.
+  const observed = observedProcessIncarnation(lock.pid, options);
+  if (lock.incarnation !== TRANSACTION_LOCK_UNVERIFIED_INCARNATION &&
+      observed !== null && observed !== lock.incarnation) {
+    return false;
+  }
   const leasePath = lockLeasePath(specDir, lock);
   const lease = lstatRegularOrMissing(leasePath, 'transaction lock lease') === null
     ? null : readLock(leasePath, 'transaction lock lease');
@@ -343,9 +352,9 @@ function lockIsActive(specDir, lock, now, options = {}) {
   }
   const leaseUntil = lease === null ? lock.leaseUntil : lease.leaseUntil;
   if (leaseUntil >= now) return true;
-  const observed = observedProcessIncarnation(lock.pid, options);
-  // An expired lease is not a death detector. A live matching incarnation is
-  // still the owner, and an unknown incarnation is handled conservatively.
+  // An expired lease is not a death detector by itself. A live matching
+  // incarnation is still the owner, and an unknown incarnation (couldn't be
+  // observed on either side) is handled conservatively.
   return lock.incarnation === TRANSACTION_LOCK_UNVERIFIED_INCARNATION ||
     observed === null || observed === lock.incarnation;
 }

@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { checkSources } from '../src/index.mjs';
-import './helpers.mjs'; // configure() side effect — each test file runs in its own module graph
+import { checkSources } from '../../src/index.mjs';
+import '../helpers.mjs'; // configure() side effect — each test file runs in its own module graph
 
 const unit = (name, parts) => [{ unit: name, parts }];
 

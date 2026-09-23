@@ -29,7 +29,7 @@ import {
   validateContentDir,
   validateSectionInventoryLock,
   writeSectionInventoryLock,
-} from '../src/index.mjs';
+} from '../../src/index.mjs';
 import {
   TEST_RELEASE,
   baseFixtures,
@@ -38,7 +38,7 @@ import {
   metaJs,
   validate,
   write,
-} from './helpers.mjs';
+} from '../helpers.mjs';
 
 function tempRoot(prefix = 'polydoc-unit-gap-') {
   return fs.mkdtempSync(path.join(os.tmpdir(), prefix));

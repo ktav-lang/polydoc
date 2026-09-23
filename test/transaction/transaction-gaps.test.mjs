@@ -62,7 +62,7 @@ import {
   verifyOld,
   writeJournalSnapshot,
   writeLockCandidate,
-} from '../src/index.mjs';
+} from '../../src/index.mjs';
 
 configure({
   langs: ['en', 'ru', 'zh'],

@@ -11,8 +11,8 @@ import {
   rootDocUnitsDir,
   rootOutputName,
   writeRootDocs,
-} from '../src/index.mjs';
-import { bodySource, metaJs, unitMeta, write } from './helpers.mjs';
+} from '../../src/index.mjs';
+import { bodySource, metaJs, unitMeta, write } from '../helpers.mjs';
 
 function writeUnit(unitsDir, name, bodies, bodyParts = 1) {
   const dir = path.join(unitsDir, name);

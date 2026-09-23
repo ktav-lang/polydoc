@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { assembleRootDocUnits, hasRootDocUnits } from './root_doc_units.mjs';
+import { assembleRootDocUnits, hasRootDocUnits } from '../root_docs/units.mjs';
 import {
   BODY_LINE_LIMIT,
   BODY_TARGET_LINES,
@@ -19,7 +19,7 @@ import {
   minorLineOf,
   VERSION_TOKEN,
   requireConfigured,
-} from './config.mjs';
+} from '../config.mjs';
 import {
   decodeUtf8Strict,
   fail,
@@ -29,8 +29,8 @@ import {
   validateBodyPart,
   validateGeneratedHeading,
   validateMeta,
-} from './units/decode.mjs';
-import { validateBodySourceShape, validateUnitHeadings } from './units/containers.mjs';
+} from '../units/decode.mjs';
+import { validateBodySourceShape, validateUnitHeadings } from '../units/containers.mjs';
 
 // A per-version README may be assembled from a `readme-units/` unit tree
 // (root_doc_units.mjs's shape — same as the repository-root documents)

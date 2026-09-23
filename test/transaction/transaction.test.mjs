@@ -12,10 +12,10 @@ import {
   checkBuildOutputs,
   recoverBuildOutputTransaction,
   pendingTransactionPaths,
-} from '../src/index.mjs';
-import { baseFixtures, makeContent, write } from './helpers.mjs';
+} from '../../src/index.mjs';
+import { baseFixtures, makeContent, write } from '../helpers.mjs';
 
-const fixtureScript = fileURLToPath(new URL('../test-support/write-outputs.mjs', import.meta.url));
+const fixtureScript = fileURLToPath(new URL('../../test-support/write-outputs.mjs', import.meta.url));
 
 function tempSpecDir() {
   // resolvedWriteRoot() deliberately refuses a symlinked ANCESTOR (not

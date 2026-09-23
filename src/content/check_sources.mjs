@@ -20,8 +20,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { LANGS, requireConfigured } from './config.mjs';
-import { validateBodySourceShape } from './units/containers.mjs';
+import { LANGS, requireConfigured } from '../config.mjs';
+import { validateBodySourceShape } from '../units/containers.mjs';
 
 const FENCE_RE = /^\s*(```|~~~)/u;
 const WIDE_CP_RE = /[ᄀ-ᅟ⺀-꓏가-힣豈-﫿︰-﹯＀-｠￠-￦]/u;

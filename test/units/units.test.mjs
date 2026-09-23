@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { findHeadings } from '../src/index.mjs';
-import './helpers.mjs'; // configure() side effect
+import { findHeadings } from '../../src/index.mjs';
+import '../helpers.mjs'; // configure() side effect
 
 test('a plain ATX heading is found', () => {
   const headings = findHeadings('# Title\n\nbody\n');

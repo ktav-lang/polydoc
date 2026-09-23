@@ -29,15 +29,15 @@ Ubuntu, Windows and macOS. Both must pass before a change is done.
 | `src/index.mjs` | Public surface: `export *` from every module below. |
 | `src/config.mjs` | `configure()` — must run once before any other export; values are live `let` bindings read by every module. |
 | `src/units/` | Unit decoding (`>>>>> lang=` blocks) and the CommonMark-subset heading scanner (`blocks.mjs`, `containers.mjs`). |
-| `src/content.mjs` | Content-unit tree validation/assembly, split planner, section-inventory lock. |
-| `src/root_doc_units.mjs`, `src/root_docs.mjs` | Root-document (README, CHANGELOG, ...) assembly and `writeRootDocs`/`checkRootDocs`. |
-| `src/outputs.mjs` | `writeBuildOutputs` / `checkBuildOutputs`. |
+| `src/content/` | Content-unit tree validation/assembly, split planner, section-inventory lock (`tree.mjs`). |
+| `src/root_docs/` | Root-document (README, CHANGELOG, ...) assembly and `writeRootDocs`/`checkRootDocs` (`units.mjs`, `assemble.mjs`). |
+| `src/transaction/outputs.mjs` | `writeBuildOutputs` / `checkBuildOutputs`. |
 | `src/transaction/` | Journal, cross-process lock, backup/install/cleanup, rollback, recovery. |
 | `src/registry.mjs` | Docs registry: generated / frozen (SHA-256 lock) / internal. |
-| `src/check_sources.mjs` | Structural translation-parity checks over sources. |
+| `src/content/check_sources.mjs` | Structural translation-parity checks over sources. |
 | `root-docs/` | Sources of this repo's own README and CHANGELOG (dogfooding). |
 | `scripts/build-docs.mjs` | Builds/checks the files above. |
-| `test/*.test.mjs` | `node:test` suites; `test/helpers.mjs` holds fixtures and the shared `configure()` call. |
+| `test/units/`, `test/content/`, `test/transaction/`, `test/outputs/`, `test/root_docs/` | `node:test` suites in thematic subfolders; `test/helpers.mjs` (top level) holds fixtures and the shared `configure()` call. |
 | `test-support/write-outputs.mjs` | Child process killed with `SIGKILL` by crash-recovery tests. |
 
 ## Editing documentation
@@ -67,13 +67,13 @@ Ubuntu, Windows and macOS. Both must pass before a change is done.
 - **Journal format and lock protocol** must stay compatible with
   `ktav-lang/spec`; an existing journal or lock on disk must still recover.
   Do not change them without an explicit request.
-- **Crash-injection hooks** in `src/outputs.mjs` use the legacy
+- **Crash-injection hooks** in `src/transaction/outputs.mjs` use the legacy
   `KTAV_BUILD_SPEC_CRASH_*` environment variables; tests depend on those
   names.
 - **No hardcoded language set.** Nothing may assume exactly three languages;
   take them from `configure()`.
 - **Configured outputs must never overwrite inputs** (see
-  `test/config-output-safety.test.mjs`).
+  `test/outputs/config-output-safety.test.mjs`).
 - **LF everywhere.** `.gitattributes` forces `eol=lf`; generated output must
   be byte-identical on every OS.
 
@@ -85,7 +85,7 @@ Ubuntu, Windows and macOS. Both must pass before a change is done.
 - A failing or flaky test is fixed at its real cause, not retried or
   skipped. Windows-specific file-locking and rename behaviour is a common
   cause; keep tests portable.
-- New behaviour needs a test in the matching `test/*.test.mjs` file.
+- New behaviour needs a test in the matching `test/<area>/*.test.mjs` file.
 
 ## Release
 

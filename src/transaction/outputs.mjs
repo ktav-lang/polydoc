@@ -7,9 +7,9 @@ import {
   OUT_FILES,
   README_FILES,
   README_SOURCE_FILE,
-} from './config.mjs';
-import { fail } from './units/decode.mjs';
-import { assertRegularDestination } from './content.mjs';
+} from '../config.mjs';
+import { fail } from '../units/decode.mjs';
+import { assertRegularDestination } from '../content/tree.mjs';
 import {
   TRANSACTION_FORMAT,
   TRANSACTION_VERSION,
@@ -31,20 +31,20 @@ import {
   verifyOld,
   writeAllSync,
   writeJournalSnapshot,
-} from './transaction/journal.mjs';
+} from './journal.mjs';
 import {
   beginRollback,
   cleanReclaimedOwnerMarkers,
   cleanupPreJournalArtifacts,
   rollbackTransaction,
-} from './transaction/rollback.mjs';
+} from './rollback.mjs';
 import {
   acquireTransactionLock,
   recoverBuildOutputTransactionLocked,
   releaseTransactionLock,
   transactionLockGuard,
   transactionLockOwnershipGuard,
-} from './transaction/acquire.mjs';
+} from './acquire.mjs';
 
 function resolvedWriteRoot(root, label) {
   const absolute = path.resolve(root);

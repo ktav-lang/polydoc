@@ -18,7 +18,7 @@ import {
   rootOutputName,
   validateContentDir,
   writeFrozenDocsLock,
-} from '../src/index.mjs';
+} from '../../src/index.mjs';
 import {
   baseFixtures,
   bodySource,
@@ -29,7 +29,7 @@ import {
   unitMeta,
   validate,
   write,
-} from './helpers.mjs';
+} from '../helpers.mjs';
 
 function tempDir(prefix) {
   return fs.mkdtempSync(path.join(os.tmpdir(), prefix));

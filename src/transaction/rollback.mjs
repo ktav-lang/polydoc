@@ -30,7 +30,7 @@ import {
 } from './lock.mjs';
 import { lockArtifactEntries } from './acquire.mjs';
 import { cleanReleaseOwnerArtifacts } from './cleanup.mjs';
-import { validateWriteRoots } from '../outputs.mjs';
+import { validateWriteRoots } from './outputs.mjs';
 
 function cleanUnpublishedOutputTemps(specDir, contentDir, orphanPaths, options, guard) {
   const temps = [];

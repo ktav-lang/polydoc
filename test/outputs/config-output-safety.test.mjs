@@ -8,8 +8,8 @@ import {
   buildBuffers,
   configure,
   writeBuildOutputs,
-} from '../src/index.mjs';
-import { baseFixtures, makeContent, write } from './helpers.mjs';
+} from '../../src/index.mjs';
+import { baseFixtures, makeContent, write } from '../helpers.mjs';
 
 const langs = ['en', 'ru', 'zh'];
 

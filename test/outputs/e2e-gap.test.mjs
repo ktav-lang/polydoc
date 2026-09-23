@@ -24,10 +24,10 @@ import {
   recoverBuildOutputTransaction,
   writeBuildOutputs,
   writeRootDocs,
-} from '../src/index.mjs';
-import { baseFixtures, bodySource, makeContent, metaJs, unitMeta, write } from './helpers.mjs';
+} from '../../src/index.mjs';
+import { baseFixtures, bodySource, makeContent, metaJs, unitMeta, write } from '../helpers.mjs';
 
-const fixtureScript = fileURLToPath(new URL('../test-support/write-outputs.mjs', import.meta.url));
+const fixtureScript = fileURLToPath(new URL('../../test-support/write-outputs.mjs', import.meta.url));
 const LANGS = ['en', 'ru', 'zh'];
 const OUTPUTS = [
   ['spec', 'spec.md'], ['spec', 'spec.ru.md'], ['spec', 'spec.zh.md'],

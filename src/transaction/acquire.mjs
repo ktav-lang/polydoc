@@ -76,7 +76,7 @@ import {
   cleanReleaseOwnerArtifacts,
   cleanStaleLockLeaseTemps,
 } from './cleanup.mjs';
-import { validateWriteRoots } from '../outputs.mjs';
+import { validateWriteRoots } from './outputs.mjs';
 
 function claimExactStaleFile(specDir, targetPath, expected, now, options) {
   const claim = publishLockClaim(specDir, expected, now, options);

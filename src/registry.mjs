@@ -31,8 +31,8 @@ import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { readCanonicalJson } from './content.mjs';
-import { ROOT_DOCUMENTS, rootOutputName } from './root_docs.mjs';
+import { readCanonicalJson } from './content/tree.mjs';
+import { ROOT_DOCUMENTS, rootOutputName } from './root_docs/assemble.mjs';
 import { LANGS, OUT_FILES, README_FILES, requireConfigured } from './config.mjs';
 
 // Does `rel` (a POSIX-style path relative to the repo root) match one

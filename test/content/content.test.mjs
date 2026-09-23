@@ -4,8 +4,8 @@ import test from 'node:test';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { substituteReleaseTokens, minorLineOf, bodySplitPlan } from '../src/index.mjs';
-import { baseFixtures, buildInTemp, sameLanguageBodies, unitMeta, validate } from './helpers.mjs';
+import { substituteReleaseTokens, minorLineOf, bodySplitPlan } from '../../src/index.mjs';
+import { baseFixtures, buildInTemp, sameLanguageBodies, unitMeta, validate } from '../helpers.mjs';
 
 test('a clean fixture set validates and reports the manifest', async () => {
   const result = await validate(baseFixtures());

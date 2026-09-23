@@ -18,11 +18,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { assembleRootDocUnits, hasRootDocUnits } from './root_doc_units.mjs';
+import { assembleRootDocUnits, hasRootDocUnits } from './units.mjs';
 // No import cycle: content.mjs imports root_doc_units.mjs, never this file.
-import { DERIVED_TOKEN_RE, substituteReleaseTokens } from './content.mjs';
-import { LANGS, ROOT_DOCUMENTS, requireConfigured } from './config.mjs';
-import { fail } from './units/decode.mjs';
+import { DERIVED_TOKEN_RE, substituteReleaseTokens } from '../content/tree.mjs';
+import { LANGS, ROOT_DOCUMENTS, requireConfigured } from '../config.mjs';
+import { fail } from '../units/decode.mjs';
 
 /// Where a root document's unit tree lives, e.g. `<repoRoot>/root-docs/README/`.
 export const rootDocUnitsDir = (repoRoot, doc) => path.join(repoRoot, 'root-docs', doc);
