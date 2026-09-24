@@ -7,6 +7,14 @@ All notable changes to this project are documented here. The format is
 [Semantic Versioning](https://semver.org/) with the pre-1.0 convention
 that a MINOR bump is breaking.
 
+## Unreleased
+
+### Fixed
+
+- Transaction-lock recovery now treats a live PID with an observed process
+  incarnation that differs from the lock's recorded incarnation as a reused
+  PID, even before the lease expires.
+
 ## 0.1.0 — 2026-09-22
 
 ### Added
