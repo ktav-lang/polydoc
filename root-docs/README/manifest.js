@@ -5,5 +5,6 @@ export default [
   "what-it-does",
   "install",
   "usage",
+  "shared-fragments",
   "license"
 ]

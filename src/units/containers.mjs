@@ -1,5 +1,6 @@
 import { LANGS, LANG_SEPARATOR_RE, bodyFileName, langSeparator } from '../config.mjs';
 import { failUnit } from './decode.mjs';
+import { expandSharedFragments } from './shared.mjs';
 import {
   buildThematicBreakSuffix,
   canContinueParagraph,
@@ -641,7 +642,7 @@ function parseLanguageBlocks(src, reject, label) {
 // first-file-wins rule that would quietly adopt a typo.
 function validateBodySourceShape(unit, k, src, label = bodyFileName(k)) {
   const reject = (message) => failUnit(unit, message);
-  const blocks = parseLanguageBlocks(src, reject, label);
+  const blocks = parseLanguageBlocks(expandSharedFragments(src, reject, label), reject, label);
 
   const unexpected = [...blocks.keys()].filter((lang) => !LANGS.includes(lang));
   if (unexpected.length > 0) {

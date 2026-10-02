@@ -32,6 +32,7 @@
 - **根文档组装**——为一批"看起来像手工维护"的文档(README、
   CHANGELOG 等)提供同样的单元形态,而无需完整规范才需要的编号标题
   与小节清单锁定机制。
+- **共享 Markdown 片段**——代码、图片、链接及其他 Markdown 只定义一次，再插入各语言版本，并检查引用次数一致。
 - **带日志的进程崩溃恢复写入**——`writeBuildOutputs` 记录事务，然后
   按顺序逐个文件执行 backup 和 install。进程崩溃后，recovery 会恢复到
   写入前的一致状态，或完成已经持久提交的事务。这不是面向无关读者的
@@ -63,6 +64,9 @@ npm install @ktav-lang/polydoc
 `configure()` 必须在使用任何其他功能之前调用一次——它为整个流程
 固定语言集合与文件命名约定。
 
+`writeBuildOutputs` 支持带日志的进程崩溃恢复，不提供面向读者的原子 snapshot。
+`checkBuildOutputs` 会在字节级差异出现时抛出错误。
+
 ```js
 import {
   configure,
@@ -80,19 +84,50 @@ configure({
   rootDocuments: ['README', 'CHANGELOG'],
 });
 
+recoverBuildOutputTransaction('versions/1.0', 'versions/1.0/content');
 const build = await buildBuffers('versions/1.0/content', {
   requireSectionInventoryLock: true,
   sectionInventoryLockPath: 'scripts/locks/section-inventory.1.0.lock.json',
 });
-
-// 通过日志支持进程崩溃恢复；这不是面向读者的原子 snapshot：
 writeBuildOutputs('versions/1.0', 'versions/1.0/content', build);
-// checkBuildOutputs(specDir, contentDir, build) — throws on the first
-// byte-level divergence instead, for CI.
+checkBuildOutputs('versions/1.0', 'versions/1.0/content', build);
 ```
 
 完整的导出接口见 [`src/index.mjs`](src/index.mjs)——内容组装、根文档、
 注册表、结构化检查以及事务内部实现均从顶层入口重新导出。
+
+## 共享 Markdown 片段
+
+在第一个语言块之前，定义一次与语言无关的 Markdown：
+
+````text
+>>>>> shared=example
+```js
+console.log(42);
+```
+
+>>>>> shared=logo
+![Logo](https://example.com/logo.svg)
+
+>>>>> shared=links
+[docs]: https://example.com/docs
+````
+
+- 在每个 `>>>>> lang=<code>` 块中，将 `<<<<< include=example`、
+  `<<<<< include=logo` 或 `<<<<< include=links` 放在独立且无缩进的行上。
+  链接文字可翻译，同时复用定义，例如 `[阅读][docs]`。
+- 名称是区分大小写的 ASCII 标识符：以字母开头，后续可用字母、数字、
+  `_` 或 `-`。定义仅作用于当前 `body-N.md` 文件。
+- 片段可包含代码、图片、链接、列表、表格或其他 Markdown。定义末尾的
+  分隔空行不纳入内容，内部空白保持不变。语言分隔符限制仍然适用。
+- 每种已配置语言对同一名称的引用次数必须相同。空定义、未知名称、
+  重复名称及嵌套引用均无法通过验证。
+- 代码围栏内的引用保持原样。不加载文件或 URL，也不执行内容。
+  相对链接保留正常的 Markdown 语义。
+
+展开先于标题、分块大小、翻译结构及输出检查，也先于版本占位符替换。
+生成的 Markdown 是完整文档；读者无需 Polydoc 或引用扩展。
+旧的内联源文件仍然有效。
 
 ## 许可证
 

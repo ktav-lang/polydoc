@@ -10,6 +10,7 @@
   hand-maintained-feeling documents (README, CHANGELOG, ...), without
   the numbered-heading and section-inventory machinery a full spec
   needs.
+- **Shared Markdown fragments** — define code, images, links or other Markdown once and include it in every translation with reference-count parity.
 - **Journalled crash recovery for output writes** — `writeBuildOutputs`
   journals a transaction, then backs up and installs outputs sequentially,
   one file at a time. After a process crash, recovery restores a consistent
@@ -46,6 +47,7 @@
   документов, которые обычно ведут вручную (README, CHANGELOG, ...),
   без машинерии нумерованных заголовков и инвентарной блокировки
   секций, нужной полноценной спецификации.
+- **Общие Markdown-фрагменты** — код, изображения, ссылки и другой Markdown задаются один раз и подключаются во все переводы с проверкой числа вставок.
 - **Журналируемое восстановление записи после падения процесса** —
   `writeBuildOutputs` журналирует транзакцию, затем последовательно,
   по одному файлу, выполняет backup и install. После падения процесса
@@ -83,6 +85,7 @@
 - **根文档组装**——为一批"看起来像手工维护"的文档(README、
   CHANGELOG 等)提供同样的单元形态,而无需完整规范才需要的编号标题
   与小节清单锁定机制。
+- **共享 Markdown 片段**——代码、图片、链接及其他 Markdown 只定义一次，再插入各语言版本，并检查引用次数一致。
 - **带日志的进程崩溃恢复写入**——`writeBuildOutputs` 记录事务，然后
   按顺序逐个文件执行 backup 和 install。进程崩溃后，recovery 会恢复到
   写入前的一致状态，或完成已经持久提交的事务。这不是面向无关读者的

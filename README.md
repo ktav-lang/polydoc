@@ -40,6 +40,7 @@ it.
   hand-maintained-feeling documents (README, CHANGELOG, ...), without
   the numbered-heading and section-inventory machinery a full spec
   needs.
+- **Shared Markdown fragments** — define code, images, links or other Markdown once and include it in every translation with reference-count parity.
 - **Journalled crash recovery for output writes** — `writeBuildOutputs`
   journals a transaction, then backs up and installs outputs sequentially,
   one file at a time. After a process crash, recovery restores a consistent
@@ -76,6 +77,9 @@ Requires Node.js 24 or later.
 `configure()` must run once, before anything else — it fixes the
 language set and file-naming conventions for the rest of the process.
 
+`writeBuildOutputs` provides journalled process-crash recovery, not an atomic
+reader snapshot. `checkBuildOutputs` throws on byte-level divergence.
+
 ```js
 import {
   configure,
@@ -93,21 +97,53 @@ configure({
   rootDocuments: ['README', 'CHANGELOG'],
 });
 
+recoverBuildOutputTransaction('versions/1.0', 'versions/1.0/content');
 const build = await buildBuffers('versions/1.0/content', {
   requireSectionInventoryLock: true,
   sectionInventoryLockPath: 'scripts/locks/section-inventory.1.0.lock.json',
 });
-
-// Journalled process-crash recovery; this is not an atomic reader snapshot:
 writeBuildOutputs('versions/1.0', 'versions/1.0/content', build);
-// checkBuildOutputs(specDir, contentDir, build) — throws on the first
-// byte-level divergence instead, for CI.
+checkBuildOutputs('versions/1.0', 'versions/1.0/content', build);
 ```
 
 See [`src/index.mjs`](src/index.mjs) for the full exported surface —
 content assembly, root documents, the registry, structural checks, and
 the transaction internals are all re-exported from the top-level entry
 point.
+
+## Shared Markdown fragments
+
+Define language-independent Markdown once, before the first language block:
+
+````text
+>>>>> shared=example
+```js
+console.log(42);
+```
+
+>>>>> shared=logo
+![Logo](https://example.com/logo.svg)
+
+>>>>> shared=links
+[docs]: https://example.com/docs
+````
+
+- Inside every `>>>>> lang=<code>` block, put `<<<<< include=example`,
+  `<<<<< include=logo` or `<<<<< include=links` on its own column-zero line.
+  Translated link labels can use the shared definition: `[Read][docs]`.
+- Names are case-sensitive ASCII identifiers: start with a letter, then use
+  letters, digits, `_` or `-`. Definitions are scoped to one `body-N.md` file.
+- Fragments can contain code, images, links, lists, tables or other Markdown.
+  Separator blank lines at the end of definitions are excluded; internal
+  whitespace is preserved. Existing language-separator restrictions still apply.
+- Every configured language must use each shared name the same number of times.
+  Empty definitions, unknown names, duplicate names and nested includes fail.
+- Includes are not expanded inside fenced code. No files or URLs are loaded,
+  and nothing is executed. Relative links keep their normal Markdown meaning.
+
+Expansion happens before heading, split-size, translation-shape and output
+checks, and before release-token substitution. Generated Markdown is complete;
+readers do not need Polydoc or an include extension. Legacy inline sources remain valid.
 
 ## License
 

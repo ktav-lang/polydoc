@@ -7,7 +7,17 @@ All notable changes to this project are documented here. The format is
 [Semantic Versioning](https://semver.org/) with the pre-1.0 convention
 that a MINOR bump is breaking.
 
-## Unreleased
+## 0.1.1 — 2026-10-02
+
+### Added
+
+- Shared Markdown fragments: define `>>>>> shared=name` before language blocks
+  and insert `<<<<< include=name` in each translation. Code, images, links,
+  lists and tables can share one authoritative source.
+- Reference-count parity rejects dropped or duplicated includes; unknown names,
+  duplicate definitions, empty fragments and nested includes fail validation.
+- Regression coverage for four languages, legacy inline fences, body-file scope,
+  release substitution and Markdown reuse; README examples now use shared code.
 
 ### Fixed
 
