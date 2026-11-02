@@ -1,0 +1,48 @@
+name: License checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-free:
+    name: Guard dependency-free npm package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Reject unreviewed npm dependencies
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from "node:assert/strict";
+          import { readFileSync, readdirSync } from "node:fs";
+          import { join } from "node:path";
+          const fields = ["dependencies", "devDependencies", "optionalDependencies", "peerDependencies", "bundledDependencies", "bundleDependencies", "workspaces"];
+          function hasDependencies(pkg) {
+            return fields.some((field) => pkg[field] != null && (typeof pkg[field] !== "object" || Object.keys(pkg[field]).length > 0));
+          }
+          assert.equal(hasDependencies({ dependencies: { example: "1" } }), true);
+          assert.equal(hasDependencies({}), false);
+          const pkg = JSON.parse(readFileSync("package.json", "utf8"));
+          if (hasDependencies(pkg)) throw new Error("New dependencies require license review and a lockfile scanner");
+          const manifest = /^(package(-lock)?\.json|npm-shrinkwrap\.json|yarn\.lock|pnpm-lock\.yaml|Cargo\.(toml|lock)|go\.(mod|sum)|pyproject\.toml|requirements[^/]*\.txt|composer\.(json|lock)|pom\.xml|[^/]+\.csproj|build\.gradle(\.kts)?|Gemfile(\.lock)?)$/;
+          assert.ok(manifest.test("package.json"));
+          assert.ok(manifest.test("Cargo.toml"));
+          assert.ok(!manifest.test("example.js"));
+          function inspect(dir) {
+            for (const entry of readdirSync(dir, { withFileTypes: true })) {
+              if (dir === "." && entry.name === ".git") continue;
+              const path = join(dir, entry.name);
+              if (entry.isSymbolicLink()) throw new Error(`Symlink requires license review: ${path}`);
+              if (entry.isDirectory()) inspect(path);
+              else if (path !== "package.json" && manifest.test(entry.name)) throw new Error(`New manifest requires license review: ${path}`);
+            }
+          }
+          inspect(".");
+          NODE
